@@ -1,12 +1,30 @@
 .data
-result_msg: .asciiz "BitCount(59) = "
+    result_msg: .asciiz "Number of 1 bits in 59 = "
 
 .text
 .globl main
 
-# -----------------------------
-# Συνάρτηση BitCount (αναδρομική)
-# -----------------------------
+main:
+    li  $a0, 59
+    jal BitCount           # v0 = BitCount(59)
+
+    move $t0, $v0          # Save res (η syscall παίρνει το v0)
+
+    # Print msg
+    li  $v0, 4
+    la  $a0, result_msg
+    syscall
+
+    # Print result
+    li  $v0, 1
+    move $a0, $t0          
+    syscall
+
+    # Exit
+    li  $v0, 10
+    syscall
+
+#===============================================================
 BitCount:
     addi $sp, $sp, -8      # Δημιουργία frame
     sw   $ra, 4($sp)       # Αποθήκευση return address
@@ -29,23 +47,4 @@ end_func:
     lw   $ra, 4($sp)        # Επαναφορά return address
     addi $sp, $sp, 8        # Επαναφορά stack pointer
     jr   $ra                # Επιστροφή
-
-# -----------------------------
-# Κύριο πρόγραμμα (main)
-# -----------------------------
-main:
-    li   $a0, 59            # φόρτωσε n = 59
-    jal  BitCount           # κάλεσε τη συνάρτηση BitCount
-    move $s0, $v0           # αποθήκευσε το αποτέλεσμα στο $s0
-
-    # Εκτύπωση αποτελέσματος
-    li   $v0, 4
-    la   $a0, result_msg
-    syscall
-
-    li   $v0, 1             # print_int syscall
-    move $a0, $s0           # $a0 = αποτέλεσμα
-    syscall
-
-    li   $v0, 10            # exit
-    syscall
+#===============================================================
